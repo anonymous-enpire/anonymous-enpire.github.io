@@ -826,16 +826,18 @@ function LearnedPolicyPanels() {
   ];
 
   return (
-    <section className="learned-policy-section">
+    <>
       <p className="learned-policy-summary">
         Policies trained with ENPIRE reach a 99% pass@8 success rate across the showcased manipulation tasks.
       </p>
-      <div className="learned-policy-grid" aria-label="Learned manipulation policy tasks">
-        {policies.map((policy) => (
-          <LearnedPolicyPanel key={policy.title} policy={policy} />
-        ))}
-      </div>
-    </section>
+      <section className="learned-policy-section">
+        <div className="learned-policy-grid" aria-label="Learned manipulation policy tasks">
+          {policies.map((policy) => (
+            <LearnedPolicyPanel key={policy.title} policy={policy} />
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
 

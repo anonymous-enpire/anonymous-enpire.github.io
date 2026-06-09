@@ -1974,13 +1974,13 @@ textarea {
 .learned-policy-section {
   position: relative;
   width: min(1200px, calc(100vw - 96px));
-  margin: 34px 50% 0;
+  margin: 0 50%;
   transform: translateX(-50%);
 }
 
 .learned-policy-summary {
   max-width: 640px;
-  margin: 0 0 22px max(0px, calc((100% - 965px) / 2));
+  margin: 34px 0 22px;
   color: rgba(255, 255, 255, 0.68);
   font-size: 17px;
   line-height: 1.55;
