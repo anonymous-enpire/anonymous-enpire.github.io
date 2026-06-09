@@ -33,6 +33,7 @@ const initialStates = [
   },
 ];
 const progressMilestones = [0.2, 0.4, 0.6, 0.8];
+const playbackSpeeds = [2, 4, 8, 1] as const;
 type ResetKeypoint = {
   id: string;
   image: string;
@@ -48,10 +49,12 @@ export default function PushTResetCasePanel() {
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [speedIndex, setSpeedIndex] = useState(0);
   const [viewerInitialTime, setViewerInitialTime] = useState(0);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const selectedState = initialStates.find((state) => state.id === selectedId) ?? initialStates[0];
+  const speed = playbackSpeeds[speedIndex];
   const resetKeypoints = selectedState.id === "init-1" ? keypoints : [];
   const activeKeypoint =
     resetKeypoints.find((point) => point.id === selectedKeypointId) ??
@@ -90,9 +93,9 @@ export default function PushTResetCasePanel() {
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 2;
+      videoRef.current.playbackRate = speed;
     }
-  }, [selectedId]);
+  }, [selectedId, speed]);
 
   const resetPlaybackState = () => {
     setDuration(0);
@@ -120,6 +123,10 @@ export default function PushTResetCasePanel() {
     }
   };
 
+  const cycleSpeed = () => {
+    setSpeedIndex((current) => (current + 1) % playbackSpeeds.length);
+  };
+
   const handleScrub = (nextProgress: number) => {
     const video = videoRef.current;
     const clamped = Math.max(0, Math.min(1, nextProgress));
@@ -143,7 +150,7 @@ export default function PushTResetCasePanel() {
           muted
           onEnded={() => setIsPlaying(false)}
           onLoadedMetadata={(event) => {
-            event.currentTarget.playbackRate = 2;
+            event.currentTarget.playbackRate = speed;
             setDuration(event.currentTarget.duration || 0);
           }}
           onPause={() => setIsPlaying(false)}
@@ -158,7 +165,14 @@ export default function PushTResetCasePanel() {
           ref={videoRef}
           src={selectedState.video}
         />
-        <span className="pusht-reset-case__speed">2x</span>
+        <button
+          aria-label={`Push T reset playback speed ${speed}x. Click to change speed.`}
+          className="pusht-reset-case__speed"
+          onClick={cycleSpeed}
+          type="button"
+        >
+          {speed}x
+        </button>
         <button
           aria-label={`Expand ${selectedState.label} Push T reset video`}
           className="video-panel-expand-button"
@@ -255,9 +269,10 @@ export default function PushTResetCasePanel() {
         initialTime={viewerInitialTime}
         isOpen={isViewerOpen}
         onClose={() => setIsViewerOpen(false)}
-        playbackRate={2}
+        onCycleSpeed={cycleSpeed}
+        playbackRate={speed}
         poster={selectedState.poster}
-        speedLabel="2x"
+        speedLabel={`${speed}x`}
         src={selectedState.video}
         title={`Push T reset: ${selectedState.label}`}
       />

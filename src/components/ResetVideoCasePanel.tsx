@@ -14,6 +14,7 @@ type ResetInit = {
 };
 
 const progressMilestones = [0.2, 0.4, 0.6, 0.8];
+const playbackSpeeds = [2, 4, 8, 1] as const;
 
 export function ResetVideoCasePanel({
   ariaLabel,
@@ -26,17 +27,19 @@ export function ResetVideoCasePanel({
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [speedIndex, setSpeedIndex] = useState(0);
   const [viewerInitialTime, setViewerInitialTime] = useState(0);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const selectedState = initialStates.find((state) => state.id === selectedId) ?? initialStates[0];
+  const speed = playbackSpeeds[speedIndex];
   const percent = Math.round(progress * 100);
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 2;
+      videoRef.current.playbackRate = speed;
     }
-  }, [selectedId]);
+  }, [selectedId, speed]);
 
   const resetPlaybackState = () => {
     setDuration(0);
@@ -61,6 +64,10 @@ export function ResetVideoCasePanel({
       video.pause();
       setIsPlaying(false);
     }
+  };
+
+  const cycleSpeed = () => {
+    setSpeedIndex((current) => (current + 1) % playbackSpeeds.length);
   };
 
   const handleScrub = (nextProgress: number) => {
@@ -88,7 +95,7 @@ export function ResetVideoCasePanel({
           muted
           onEnded={() => setIsPlaying(false)}
           onLoadedMetadata={(event) => {
-            event.currentTarget.playbackRate = 2;
+            event.currentTarget.playbackRate = speed;
             setDuration(event.currentTarget.duration || 0);
           }}
           onPause={() => setIsPlaying(false)}
@@ -103,7 +110,14 @@ export function ResetVideoCasePanel({
           ref={videoRef}
           src={selectedState.video}
         />
-        <span className="pusht-reset-case__speed">2x</span>
+        <button
+          aria-label={`${ariaLabel} playback speed ${speed}x. Click to change speed.`}
+          className="pusht-reset-case__speed"
+          onClick={cycleSpeed}
+          type="button"
+        >
+          {speed}x
+        </button>
         <button
           aria-label={`Expand ${selectedState.label} reset video`}
           className="video-panel-expand-button"
@@ -164,9 +178,10 @@ export function ResetVideoCasePanel({
         initialTime={viewerInitialTime}
         isOpen={isViewerOpen}
         onClose={() => setIsViewerOpen(false)}
-        playbackRate={2}
+        onCycleSpeed={cycleSpeed}
+        playbackRate={speed}
         poster={selectedState.poster}
-        speedLabel="2x"
+        speedLabel={`${speed}x`}
         src={selectedState.video}
         title={`${ariaLabel}: ${selectedState.label}`}
       />

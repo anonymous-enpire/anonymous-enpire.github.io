@@ -10,39 +10,87 @@ from typing import Any
 PRESETS = [
     {
         "id": "seed-38",
-        "label": "Init 1",
+        "label": "Random init 1",
         "seed": 38,
-        "strategy": "Same initial state across Codex, Claude Code, and Kimi rollouts.",
+        "group": "in_distribution",
+        "strategy": "In-distribution random init shared across Codex, Claude Code, and Kimi rollouts.",
     },
     {
         "id": "seed-36",
-        "label": "Init 2",
+        "label": "Random init 2",
         "seed": 36,
-        "strategy": "Same initial state across Codex, Claude Code, and Kimi rollouts.",
+        "group": "in_distribution",
+        "strategy": "In-distribution random init shared across Codex, Claude Code, and Kimi rollouts.",
     },
     {
         "id": "seed-42",
-        "label": "Init 3",
+        "label": "Random init 3",
         "seed": 42,
-        "strategy": "Same initial state across Codex, Claude Code, and Kimi rollouts.",
+        "group": "in_distribution",
+        "strategy": "In-distribution random init shared across Codex, Claude Code, and Kimi rollouts.",
     },
     {
         "id": "seed-31",
-        "label": "Init 4",
+        "label": "Random init 4",
         "seed": 31,
-        "strategy": "Same initial state across Codex, Claude Code, and Kimi rollouts.",
+        "group": "in_distribution",
+        "strategy": "In-distribution random init shared across Codex, Claude Code, and Kimi rollouts.",
     },
     {
         "id": "seed-48",
-        "label": "Init 5",
+        "label": "Random init 5",
         "seed": 48,
-        "strategy": "Same initial state across Codex, Claude Code, and Kimi rollouts.",
+        "group": "in_distribution",
+        "strategy": "In-distribution random init shared across Codex, Claude Code, and Kimi rollouts.",
     },
     {
         "id": "seed-18",
-        "label": "Init 6",
+        "label": "Random init 6",
         "seed": 18,
-        "strategy": "Same initial state across Codex, Claude Code, and Kimi rollouts.",
+        "group": "in_distribution",
+        "strategy": "In-distribution random init shared across Codex, Claude Code, and Kimi rollouts.",
+    },
+    {
+        "id": "seed-151",
+        "label": "OOD random init 1",
+        "seed": 151,
+        "group": "ood",
+        "strategy": "OOD random init shared across Codex, Claude Code, and Kimi rollouts.",
+    },
+    {
+        "id": "seed-152",
+        "label": "OOD random init 2",
+        "seed": 152,
+        "group": "ood",
+        "strategy": "OOD random init shared across Codex, Claude Code, and Kimi rollouts.",
+    },
+    {
+        "id": "seed-153",
+        "label": "OOD random init 3",
+        "seed": 153,
+        "group": "ood",
+        "strategy": "OOD random init shared across Codex, Claude Code, and Kimi rollouts.",
+    },
+    {
+        "id": "seed-154",
+        "label": "OOD random init 4",
+        "seed": 154,
+        "group": "ood",
+        "strategy": "OOD random init shared across Codex, Claude Code, and Kimi rollouts.",
+    },
+    {
+        "id": "seed-155",
+        "label": "OOD random init 5",
+        "seed": 155,
+        "group": "ood",
+        "strategy": "OOD random init shared across Codex, Claude Code, and Kimi rollouts.",
+    },
+    {
+        "id": "seed-156",
+        "label": "OOD random init 6",
+        "seed": 156,
+        "group": "ood",
+        "strategy": "OOD random init shared across Codex, Claude Code, and Kimi rollouts.",
     },
 ]
 
@@ -213,10 +261,13 @@ export type PushTRollout = {
   frames: PushTKeyframe[];
 };
 
+export type PushTPresetGroup = "in_distribution" | "ood";
+
 export type PushTPreset = {
   id: string;
   label: string;
   seed: number;
+  group: PushTPresetGroup;
   strategy: string;
   rollouts: Record<PushTAgentId, PushTRollout>;
 };
@@ -255,6 +306,7 @@ def main() -> None:
                         "id": preset["id"],
                         "label": preset["label"],
                         "seed": preset["seed"],
+                        "group": preset["group"],
                         "strategy": preset["strategy"],
                         "rollouts": {},
                     },

@@ -10,6 +10,7 @@ import {
   type Point,
   type PushTAgentId,
   type PushTKeyframe,
+  type PushTPresetGroup,
   type PushTPreset,
   type PushTRollout,
 } from "@/data/pushtPolicy";
@@ -37,6 +38,10 @@ const pushTModelNames: Record<PushTAgentId, string> = {
   claude: "Claude Sonnet 4",
   kimi: "Kimi K2",
 };
+const pushTPresetGroups: { id: PushTPresetGroup; label: string }[] = [
+  { id: "in_distribution", label: "In-distribution random init" },
+  { id: "ood", label: "OOD random init" },
+];
 const pythonTokenPattern =
   /("""[^"]*"""|'''[^']*'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|#[^\n]*|@[A-Za-z_]\w*|\b(?:and|as|assert|break|class|continue|dataclass|def|elif|else|except|False|finally|for|from|if|import|in|is|lambda|None|not|or|pass|return|self|True|try|while|with|yield)\b|\b\d+(?:\.\d+)?\b)/g;
 
@@ -245,6 +250,14 @@ export default function PushTPolicyPanel() {
   const activeCodeRollout = activeCodeAgent ? selected.rollouts[activeCodeAgent] : null;
   const activeCode = activeCodeAgent ? pushTPolicyCode[activeCodeAgent] : "";
   const activeCodeLines = useMemo(() => activeCode.split("\n"), [activeCode]);
+  const groupedPresets = useMemo(
+    () =>
+      pushTPresetGroups.map((group) => ({
+        ...group,
+        presets: pushTPresets.filter((preset) => preset.group === group.id),
+      })),
+    [],
+  );
 
   useEffect(() => {
     progressRef.current = progress;
@@ -357,17 +370,24 @@ export default function PushTPolicyPanel() {
       </div>
 
       <div className="pusht-gallery" aria-label="Initial state gallery">
-        {pushTPresets.map((preset) => (
-          <button
-            className="pusht-preset"
-            data-selected={preset.id === selected.id}
-            key={preset.id}
-            onClick={() => handleSelect(preset.id)}
-            type="button"
-          >
-            <MiniScene preset={preset} />
-            <span>{preset.label}</span>
-          </button>
+        {groupedPresets.map((group) => (
+          <div className="pusht-gallery-row" key={group.id}>
+            <div className="pusht-gallery-title">{group.label}</div>
+            <div className="pusht-gallery-items">
+              {group.presets.map((preset) => (
+                <button
+                  className="pusht-preset"
+                  data-selected={preset.id === selected.id}
+                  key={preset.id}
+                  onClick={() => handleSelect(preset.id)}
+                  type="button"
+                >
+                  <MiniScene preset={preset} />
+                  <span>{preset.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </section>

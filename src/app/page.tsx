@@ -1,6 +1,6 @@
 "use client";
 
-import { Maximize2, Moon, RotateCcw, Sun } from "lucide-react";
+import { Maximize2, Moon, Pause, Play, RotateCcw, Sun } from "lucide-react";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -22,6 +22,7 @@ type ArticleBlock =
   | { type: "pusht-policy" }
   | { type: "pusht-reset-case" }
   | { type: "pin-reset-case" }
+  | { type: "ziptie-reset-case" }
   | { type: "gpu-reset-case" }
   | { type: "reset-placeholder"; title: string }
   | { type: "claim-grid" }
@@ -48,8 +49,7 @@ function isFigureBlock(block: ArticleBlock) {
 }
 
 const videos = {
-  fleetDown: "/videos/fleet-down.mp4",
-  fleetUp: "/videos/fleet-up.mp4",
+  fleetScroll: "/videos/fleet-scroll.mp4",
   previousTeaser: "/videos/drone-shot-test-01.mp4",
 };
 
@@ -63,6 +63,10 @@ const outlineItems = [
   { href: "#learned-manipulation-policy", label: "Learned Policy" },
   { href: "#enpire-system", label: "ENPIRE System" },
   { href: "#environment-loop", label: "Environment Loop" },
+  { href: "#case-pusht", label: "Case 1: Push T", level: 2 },
+  { href: "#case-pin-insertion", label: "Case 2: Pin Insertion", level: 2 },
+  { href: "#case-tie-ziptie", label: "Case 3: Tie Zip-tie", level: 2 },
+  { href: "#case-gpu-insertion", label: "Case 4: GPU Insertion", level: 2 },
   { href: "#policy-improvement", label: "Policy Improvement" },
   { href: "#autoenvbench", label: "Evaluate Coding Agent" },
   { href: "#fleet-scaling", label: "Fleet Scaling" },
@@ -80,6 +84,13 @@ const headingIds: Record<string, string> = {
   "Scaling Autoresearch on Robot Fleets": "fleet-scaling",
   "Evaluation in Simulation": "simulation-evaluation",
   "Limitations & Future Directions": "limitations",
+};
+
+const subheadIds: Record<string, string> = {
+  "Case 1: Push T": "case-pusht",
+  "Case 2: Pin Insertion": "case-pin-insertion",
+  "Case 3: Tie Zip-tie": "case-tie-ziptie",
+  "Case 4: GPU Insertion": "case-gpu-insertion",
 };
 
 const article: ArticleBlock[] = [
@@ -121,7 +132,7 @@ const article: ArticleBlock[] = [
   { type: "subhead", text: "Case 2: Pin Insertion" },
   { type: "pin-reset-case" },
   { type: "subhead", text: "Case 3: Tie Zip-tie" },
-  { type: "reset-placeholder", title: "Tie Zip-tie" },
+  { type: "ziptie-reset-case" },
   { type: "subhead", text: "Case 4: GPU Insertion" },
   { type: "gpu-reset-case" },
   {
@@ -241,17 +252,307 @@ function ResetPlaceholderPanel({ title }: { title: string }) {
   );
 }
 
+const robocasaTasks = [
+  {
+    id: "coffee-setup-mug",
+    label: "Coffee Setup Mug",
+    cameraLabel: "right camera",
+    seeds: [
+      {
+        label: "Seed 1",
+        poster: "/images/robocasa/coffee-setup-mug-seed-1-right.jpg",
+        video: "/videos/robocasa/coffee-setup-mug-seed-1-right.mp4",
+      },
+      {
+        label: "Seed 2",
+        poster: "/images/robocasa/coffee-setup-mug-seed-2-right.jpg",
+        video: "/videos/robocasa/coffee-setup-mug-seed-2-right.mp4",
+      },
+    ],
+  },
+  {
+    id: "open-cabinet",
+    label: "Open Cabinet",
+    cameraLabel: "top camera",
+    seeds: [
+      {
+        label: "Seed 1",
+        poster: "/images/robocasa/open-cabinet-seed-1.jpg",
+        video: "/videos/robocasa/open-cabinet-seed-1.mp4",
+      },
+      {
+        label: "Seed 2",
+        poster: "/images/robocasa/open-cabinet-seed-2.jpg",
+        video: "/videos/robocasa/open-cabinet-seed-2.mp4",
+      },
+    ],
+  },
+  {
+    id: "open-drawer",
+    label: "Open Drawer",
+    cameraLabel: "top camera",
+    seeds: [
+      {
+        label: "Seed 1",
+        poster: "/images/robocasa/open-drawer-seed-1.jpg",
+        video: "/videos/robocasa/open-drawer-seed-1.mp4",
+      },
+      {
+        label: "Seed 2",
+        poster: "/images/robocasa/open-drawer-seed-2.jpg",
+        video: "/videos/robocasa/open-drawer-seed-2.mp4",
+      },
+    ],
+  },
+  {
+    id: "open-stand-mixer-head",
+    label: "Open Stand Mixer",
+    cameraLabel: "top camera",
+    seeds: [
+      {
+        label: "Seed 1",
+        poster: "/images/robocasa/open-stand-mixer-head-seed-1.jpg",
+        video: "/videos/robocasa/open-stand-mixer-head-seed-1.mp4",
+      },
+      {
+        label: "Seed 2",
+        poster: "/images/robocasa/open-stand-mixer-head-seed-2.jpg",
+        video: "/videos/robocasa/open-stand-mixer-head-seed-2.mp4",
+      },
+    ],
+  },
+  {
+    id: "pick-place-counter-to-cabinet",
+    label: "Counter to Cabinet",
+    cameraLabel: "top camera",
+    seeds: [
+      {
+        label: "Seed 1",
+        poster: "/images/robocasa/pick-place-counter-to-cabinet-seed-1.jpg",
+        video: "/videos/robocasa/pick-place-counter-to-cabinet-seed-1.mp4",
+      },
+      {
+        label: "Seed 2",
+        poster: "/images/robocasa/pick-place-counter-to-cabinet-seed-2.jpg",
+        video: "/videos/robocasa/pick-place-counter-to-cabinet-seed-2.mp4",
+      },
+    ],
+  },
+  {
+    id: "pick-place-sink-to-counter",
+    label: "Sink to Counter",
+    cameraLabel: "top camera",
+    seeds: [
+      {
+        label: "Seed 1",
+        poster: "/images/robocasa/pick-place-sink-to-counter-seed-1.jpg",
+        video: "/videos/robocasa/pick-place-sink-to-counter-seed-1.mp4",
+      },
+      {
+        label: "Seed 2",
+        poster: "/images/robocasa/pick-place-sink-to-counter-seed-2.jpg",
+        video: "/videos/robocasa/pick-place-sink-to-counter-seed-2.mp4",
+      },
+    ],
+  },
+  {
+    id: "turn-off-stove",
+    label: "Turn Off Stove",
+    cameraLabel: "top camera",
+    seeds: [
+      {
+        label: "Seed 1",
+        poster: "/images/robocasa/turn-off-stove-seed-1.jpg",
+        video: "/videos/robocasa/turn-off-stove-seed-1.mp4",
+      },
+      {
+        label: "Seed 2",
+        poster: "/images/robocasa/turn-off-stove-seed-2.jpg",
+        video: "/videos/robocasa/turn-off-stove-seed-2.mp4",
+      },
+    ],
+  },
+  {
+    id: "turn-on-sink-faucet",
+    label: "Turn On Sink",
+    cameraLabel: "top camera",
+    seeds: [
+      {
+        label: "Seed 1",
+        poster: "/images/robocasa/turn-on-sink-faucet-seed-1.jpg",
+        video: "/videos/robocasa/turn-on-sink-faucet-seed-1.mp4",
+      },
+      {
+        label: "Seed 2",
+        poster: "/images/robocasa/turn-on-sink-faucet-seed-2.jpg",
+        video: "/videos/robocasa/turn-on-sink-faucet-seed-2.mp4",
+      },
+    ],
+  },
+] as const;
+
+const robocasaSpeeds = [8, 1, 2, 4] as const;
+
 function SimulationGalleryPlaceholder() {
-  const items = Array.from({ length: 4 });
+  const [activeTaskId, setActiveTaskId] = useState<(typeof robocasaTasks)[number]["id"]>(robocasaTasks[0].id);
+  const [playingByIndex, setPlayingByIndex] = useState<boolean[]>(() => robocasaTasks[0].seeds.map(() => true));
+  const [progressByIndex, setProgressByIndex] = useState<number[]>(() => robocasaTasks[0].seeds.map(() => 0));
+  const [speedIndexByIndex, setSpeedIndexByIndex] = useState<number[]>(() => robocasaTasks[0].seeds.map(() => 0));
+  const videoRefs = useRef<Array<HTMLVideoElement | null>>([]);
+  const activeTask = robocasaTasks.find((task) => task.id === activeTaskId) ?? robocasaTasks[0];
+
+  useEffect(() => {
+    videoRefs.current.forEach((video) => {
+      if (!video) {
+        return;
+      }
+      video.currentTime = 0;
+      video.playbackRate = robocasaSpeeds[0];
+      video.play().catch(() => undefined);
+    });
+  }, [activeTaskId]);
+
+  const handleSelectTask = (taskId: (typeof robocasaTasks)[number]["id"]) => {
+    if (taskId === activeTaskId) {
+      return;
+    }
+    const nextTask = robocasaTasks.find((task) => task.id === taskId) ?? robocasaTasks[0];
+    setProgressByIndex(nextTask.seeds.map(() => 0));
+    setPlayingByIndex(nextTask.seeds.map(() => true));
+    setSpeedIndexByIndex(nextTask.seeds.map(() => 0));
+    setActiveTaskId(taskId);
+  };
+
+  useEffect(() => {
+    videoRefs.current.forEach((video, index) => {
+      if (!video) {
+        return;
+      }
+      const shouldPlay = playingByIndex[index] ?? true;
+      video.playbackRate = robocasaSpeeds[speedIndexByIndex[index] ?? 0];
+      if (shouldPlay) {
+        video.play().catch(() => undefined);
+      } else {
+        video.pause();
+      }
+    });
+  }, [playingByIndex, speedIndexByIndex]);
+
+  const handleTogglePlayback = (index: number) => {
+    setPlayingByIndex((current) => current.map((isPlaying, itemIndex) => (itemIndex === index ? !isPlaying : isPlaying)));
+  };
+
+  const handleCycleSpeed = (index: number) => {
+    setSpeedIndexByIndex((current) =>
+      current.map((speedIndex, itemIndex) =>
+        itemIndex === index ? (speedIndex + 1) % robocasaSpeeds.length : speedIndex,
+      ),
+    );
+  };
+
+  const handleScrub = (index: number, nextProgress: number) => {
+    const clampedProgress = Math.min(1, Math.max(0, nextProgress));
+    setProgressByIndex((current) => current.map((progress, itemIndex) => (itemIndex === index ? clampedProgress : progress)));
+    const video = videoRefs.current[index];
+    if (!video || !Number.isFinite(video.duration) || video.duration <= 0) {
+      return;
+    }
+    video.currentTime = clampedProgress * video.duration;
+    video.playbackRate = robocasaSpeeds[speedIndexByIndex[index] ?? 0];
+  };
+
+  const handleTimeUpdate = (index: number) => {
+    const video = videoRefs.current[index];
+    if (!video || !Number.isFinite(video.duration) || video.duration <= 0) {
+      return;
+    }
+    const nextProgress = video.currentTime / video.duration;
+    setProgressByIndex((current) => current.map((progress, itemIndex) => (itemIndex === index ? nextProgress : progress)));
+  };
+
+  const handleVideoReady = (video: HTMLVideoElement, index: number) => {
+    video.playbackRate = robocasaSpeeds[speedIndexByIndex[index] ?? 0];
+    if (playingByIndex[index] ?? true) {
+      video.play().catch(() => undefined);
+    }
+  };
 
   return (
-    <section className="simulation-gallery-placeholder" aria-label="Simulation evaluation gallery placeholder">
-      <div className="simulation-gallery-placeholder__track" tabIndex={0}>
-        {items.map((_, index) => (
-          <article className="simulation-gallery-placeholder__item" key={index}>
-            <div className="simulation-gallery-placeholder__viewport" aria-hidden="true" />
-          </article>
+    <section className="robocasa-gallery" aria-label="RoboCasa camera task gallery">
+      <div className="robocasa-gallery__tasks" aria-label="RoboCasa tasks">
+        {robocasaTasks.map((task) => (
+          <button
+            aria-pressed={task.id === activeTask.id}
+            data-selected={task.id === activeTask.id}
+            key={task.id}
+            onClick={() => handleSelectTask(task.id)}
+            type="button"
+          >
+            {task.label}
+          </button>
         ))}
+      </div>
+      <div className="robocasa-gallery__videos" aria-label={`${activeTask.label} ${activeTask.cameraLabel} rollouts`}>
+        {activeTask.seeds.map((seed, index) => {
+          const speed = robocasaSpeeds[speedIndexByIndex[index] ?? 0];
+
+          return (
+            <article className="robocasa-gallery__video" key={seed.video}>
+              <video
+                autoPlay
+                loop
+                muted
+                onLoadedMetadata={(event) => handleVideoReady(event.currentTarget, index)}
+                onTimeUpdate={() => handleTimeUpdate(index)}
+                playsInline
+                poster={seed.poster}
+                preload="metadata"
+                ref={(element) => {
+                  videoRefs.current[index] = element;
+                }}
+                src={seed.video}
+              />
+              <button
+                aria-label={`${activeTask.label} ${seed.label} playback speed ${speed}x. Click to change speed.`}
+                className="robocasa-gallery__speed"
+                onClick={() => handleCycleSpeed(index)}
+                type="button"
+              >
+                {speed}x
+              </button>
+              <div className="robocasa-gallery__meta">
+                <strong>{activeTask.label}</strong>
+                <span>{seed.label} · {activeTask.cameraLabel}</span>
+              </div>
+              <div className="robocasa-gallery__controls" aria-label={`${activeTask.label} ${seed.label} video controls`}>
+                <button
+                  aria-label={playingByIndex[index] ? `Pause ${seed.label}` : `Play ${seed.label}`}
+                  className="robocasa-gallery__play"
+                  onClick={() => handleTogglePlayback(index)}
+                  type="button"
+                >
+                  {playingByIndex[index] ? <Pause aria-hidden="true" size={15} /> : <Play aria-hidden="true" size={15} />}
+                </button>
+                <label
+                  className="robocasa-gallery__progress"
+                  style={{ "--robocasa-progress": `${(progressByIndex[index] ?? 0) * 100}%` } as CSSProperties}
+                >
+                  <span className="sr-only">{`${seed.label} rollout progress`}</span>
+                  <input
+                    aria-label={`${seed.label} rollout progress`}
+                    max="1"
+                    min="0"
+                    onChange={(event) => handleScrub(index, Number(event.currentTarget.value))}
+                    onInput={(event) => handleScrub(index, Number(event.currentTarget.value))}
+                    step="0.001"
+                    type="range"
+                    value={progressByIndex[index] ?? 0}
+                  />
+                </label>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -285,6 +586,40 @@ function PinResetCasePanel() {
           label: "Random Init 4",
           poster: "/images/pin-reset-only-4-frame.jpg",
           video: "/videos/pin-reset-only-4.mp4",
+        },
+      ]}
+    />
+  );
+}
+
+function ZiptieResetCasePanel() {
+  return (
+    <ResetVideoCasePanel
+      ariaLabel="Case 3 Tie Zip-tie auto reset"
+      initialStates={[
+        {
+          id: "ziptie-init-1",
+          label: "Random Init 1",
+          poster: "/images/ziptie-reset-1-frame.jpg",
+          video: "/videos/ziptie-reset-1.mp4",
+        },
+        {
+          id: "ziptie-init-2",
+          label: "Random Init 2",
+          poster: "/images/ziptie-reset-2-frame.jpg",
+          video: "/videos/ziptie-reset-2.mp4",
+        },
+        {
+          id: "ziptie-init-3",
+          label: "Random Init 3",
+          poster: "/images/ziptie-reset-3-frame.jpg",
+          video: "/videos/ziptie-reset-3.mp4",
+        },
+        {
+          id: "ziptie-init-4",
+          label: "Random Init 4",
+          poster: "/images/ziptie-reset-4-frame.jpg",
+          video: "/videos/ziptie-reset-4.mp4",
         },
       ]}
     />
@@ -486,15 +821,20 @@ function LearnedPolicyPanels() {
     { title: "Push T", videoSrc: "/videos/pusht-success.mp4" },
     { title: "Pin Insertion", videoSrc: "/videos/pin-success.mp4" },
     { title: "GPU Insertion", videoSrc: "/videos/gpu-success.mp4" },
-    { title: "Tie Ziptie" },
-    { title: "Cut Ziptie" },
+    { title: "Tie Ziptie", videoSrc: "/videos/ziptie-success.mp4" },
+    { title: "Cut Ziptie", videoSrc: "/videos/cut-ziptie-success.mp4" },
   ];
 
   return (
-    <section className="learned-policy-grid" aria-label="Learned manipulation policy tasks">
-      {policies.map((policy) => (
-        <LearnedPolicyPanel key={policy.title} policy={policy} />
-      ))}
+    <section className="learned-policy-section">
+      <p className="learned-policy-summary">
+        Policies trained with ENPIRE reach a 99% pass@8 success rate across the showcased manipulation tasks.
+      </p>
+      <div className="learned-policy-grid" aria-label="Learned manipulation policy tasks">
+        {policies.map((policy) => (
+          <LearnedPolicyPanel key={policy.title} policy={policy} />
+        ))}
+      </div>
     </section>
   );
 }
@@ -757,7 +1097,12 @@ function ArticleOutline({ activeHref }: { activeHref: string }) {
     <aside className="article-outline" aria-label="Article outline">
       <nav>
         {outlineItems.map((item) => (
-          <a aria-current={activeHref === item.href ? "true" : undefined} href={item.href} key={item.href}>
+          <a
+            aria-current={activeHref === item.href ? "true" : undefined}
+            data-level={item.level ?? 1}
+            href={item.href}
+            key={item.href}
+          >
             {item.label}
           </a>
         ))}
@@ -836,7 +1181,7 @@ function ArticleContent() {
 
           if (block.type === "subhead") {
             return (
-              <p className="article-kicker" key={index}>
+              <p className="article-kicker" id={subheadIds[block.text]} key={index}>
                 <strong>{block.text}</strong>
               </p>
             );
@@ -884,6 +1229,10 @@ function ArticleContent() {
             return <PinResetCasePanel key={index} />;
           }
 
+          if (block.type === "ziptie-reset-case") {
+            return <ZiptieResetCasePanel key={index} />;
+          }
+
           if (block.type === "gpu-reset-case") {
             return <GpuResetCasePanel key={index} />;
           }
@@ -922,66 +1271,110 @@ function ArticleContent() {
 
 function ScrollFleetTeaser() {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const fleetUpRef = useRef<HTMLVideoElement | null>(null);
-  const fleetDownRef = useRef<HTMLVideoElement | null>(null);
+  const fleetScrollRef = useRef<HTMLVideoElement | null>(null);
   const previousTeaserRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     let frame = 0;
+    let targetProgress = 0;
+    let smoothProgress = 0;
+    let previousTeaserActive = false;
     const clamp = (value: number) => Math.min(Math.max(value, 0), 1);
+    const smoothstep = (edge0: number, edge1: number, value: number) => {
+      const t = clamp((value - edge0) / (edge1 - edge0));
+      return t * t * (3 - 2 * t);
+    };
 
-    const syncVideos = () => {
-      frame = 0;
+    const setScrubTime = (video: HTMLVideoElement, progress: number, fallbackDuration: number) => {
+      const duration = video.duration || fallbackDuration;
+      const nextTime = Math.min(progress * duration, Math.max(duration - 0.04, 0));
+
+      if (video.readyState > 0 && Math.abs(video.currentTime - nextTime) > 0.035) {
+        video.currentTime = nextTime;
+      }
+    };
+
+    const readScrollProgress = () => {
       const section = sectionRef.current;
-      const fleetUp = fleetUpRef.current;
-      const fleetDown = fleetDownRef.current;
-      const previousTeaser = previousTeaserRef.current;
 
-      if (!section || !fleetUp || !fleetDown || !previousTeaser) {
-        return;
+      if (!section) {
+        return targetProgress;
       }
 
       const rect = section.getBoundingClientRect();
       const scrollable = Math.max(section.offsetHeight - window.innerHeight, 1);
-      const progress = clamp(-rect.top / scrollable);
-      const downFade = clamp((progress - 0.3) / 0.12);
-      const previousFade = clamp((progress - 0.64) / 0.14);
-      const upProgress = clamp(progress / 0.38);
-      const downProgress = clamp((progress - 0.28) / 0.42);
-      const upDuration = fleetUp.duration || 2.88;
-      const downDuration = fleetDown.duration || 2.24;
+      return clamp(-rect.top / scrollable);
+    };
 
-      fleetUp.currentTime = Math.min(upProgress * upDuration, Math.max(upDuration - 0.04, 0));
-      fleetDown.currentTime = Math.min(downProgress * downDuration, Math.max(downDuration - 0.04, 0));
-      fleetUp.style.opacity = String(1 - downFade);
-      fleetDown.style.opacity = String(downFade * (1 - previousFade));
+    const renderVideos = (progress: number) => {
+      const fleetScroll = fleetScrollRef.current;
+      const previousTeaser = previousTeaserRef.current;
+
+      if (!fleetScroll || !previousTeaser) {
+        return;
+      }
+
+      const previousFade = smoothstep(0.72, 0.86, progress);
+      const fleetProgress = clamp(progress / 0.76);
+
+      setScrubTime(fleetScroll, fleetProgress, 5.12);
+      fleetScroll.style.opacity = String(1 - previousFade);
       previousTeaser.style.opacity = String(previousFade);
 
-      if (previousFade > 0.08) {
+      if (!previousTeaserActive && previousFade > 0.38) {
+        previousTeaserActive = true;
         void previousTeaser.play();
-      } else {
+      } else if (previousTeaserActive && previousFade < 0.08) {
+        previousTeaserActive = false;
         previousTeaser.pause();
-        previousTeaser.currentTime = 0;
       }
     };
 
-    const requestSync = () => {
+    const tick = () => {
+      smoothProgress += (targetProgress - smoothProgress) * 0.18;
+
+      if (Math.abs(targetProgress - smoothProgress) < 0.001) {
+        smoothProgress = targetProgress;
+      }
+
+      renderVideos(smoothProgress);
+
+      if (smoothProgress === targetProgress) {
+        frame = 0;
+        return;
+      }
+
+      frame = window.requestAnimationFrame(tick);
+    };
+
+    const requestSync = (immediate = false) => {
+      targetProgress = readScrollProgress();
+
+      if (immediate) {
+        smoothProgress = targetProgress;
+        renderVideos(smoothProgress);
+      }
+
       if (frame) {
         return;
       }
-      frame = window.requestAnimationFrame(syncVideos);
+
+      frame = window.requestAnimationFrame(tick);
     };
 
-    requestSync();
-    window.addEventListener("scroll", requestSync, { passive: true });
-    window.addEventListener("resize", requestSync);
+    const handleScroll = () => requestSync();
+    const handleResize = () => requestSync(true);
+
+    requestSync(true);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize);
 
     return () => {
       if (frame) {
         window.cancelAnimationFrame(frame);
       }
-      window.removeEventListener("scroll", requestSync);
-      window.removeEventListener("resize", requestSync);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -989,21 +1382,12 @@ function ScrollFleetTeaser() {
     <section className="article-hero" ref={sectionRef}>
       <div className="article-hero__sticky">
         <video
-          aria-label="Fleet rises into view"
+          aria-label="Fleet rises and descends with scroll"
           muted
           playsInline
           preload="auto"
-          ref={fleetUpRef}
-          src={videos.fleetUp}
-        />
-        <video
-          aria-label="Fleet descends out of view"
-          className="article-hero__video--down"
-          muted
-          playsInline
-          preload="auto"
-          ref={fleetDownRef}
-          src={videos.fleetDown}
+          ref={fleetScrollRef}
+          src={videos.fleetScroll}
         />
         <video
           aria-label="Fleet wide teaser"
